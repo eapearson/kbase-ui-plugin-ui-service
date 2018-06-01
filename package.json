@@ -1,0 +1,16 @@
+{
+    "name": "kbase-ui-plugin-example-clojurescript",
+    "version": "0.1.0",
+    "description": "Example Plugin using ClojureScript",
+    "main": "index.js",
+    "repository": "https://github.com/eapearson/kbase-ui-plugin-example-clojurescript",
+    "author": "Erik Pearson",
+    "license": "SEE LICENSE IN LICENSE",
+    "dependencies": {
+        "bluebird": "3.5.1",
+        "requirejs": "2.3.5",
+        "knockout": "3.5.0-rc",
+        "bootstrap": "3.3.7",
+        "font-awesome": "4.7.0"
+    }
+}
