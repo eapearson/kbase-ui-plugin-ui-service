@@ -31,20 +31,27 @@ define([
         }
 
         attach(node) {
-            this.container = node;
+            this.hostNode = node;
+            this.container = node.appendChild(document.createElement('div'));
         }
 
         start() {
             this.runtime.send('ui', 'setTitle', 'UI Service Admin');
             var vm = {
-                model: this.model
+                model: this.model,
+                doNavigate: function (path) {
+                    this.runtime.send('app', 'navigate', {
+                        path: path
+                    });
+                }
             };
             this.container.innerHTML = div({
                 dataBind: {
                     component: {
                         name: MainComponent.quotedName(),
                         params: {
-                            model: 'model'
+                            model: 'model',
+                            doNavigate: 'doNavigate'
                         }
                     }
                 }
@@ -54,10 +61,12 @@ define([
         }
 
         stop() {
-            this.container.innerHTML = '';
-            if (this.iframer) {
-                return this.iframer.stop();
+            if (this.container && this.hostNode) {
+                this.hostNode.removeChild(this.container);
             }
+            // if (this.iframer) {
+            //     return this.iframer.stop();
+            // }
         }
     }
     return Panel;

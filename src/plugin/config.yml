@@ -2,7 +2,7 @@
 ---
 package:
   name: ui-service
-  descrption: A ClojureScript example app
+  descrption: UI Service Tools
   auther: Erik Pearson
 install:
   widgets:

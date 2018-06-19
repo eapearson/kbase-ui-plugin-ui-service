@@ -1,14 +1,17 @@
 define([
     'knockout',
+    'jquery',
     'kb_knockout/registry',
     'kb_knockout/lib/generators',
     'kb_knockout/lib/viewModelBase',
     'kb_common/html',
     './editor',
 
-    'bootstrap'
+    'bootstrap',
+    'bootstrap-datetimepicker'
 ], function (
     ko,
+    $,
     reg,
     gen,
     ViewModelBase,
@@ -24,10 +27,9 @@ define([
         constructor(params) {
             super(params);
             
-            this.alert = ko.unwrap(params.alert);
+            this.alert = params.alert;
             this.actions = params.actions;
 
-            console.log('edit', this.alert);
         }
     }
 
@@ -44,6 +46,7 @@ define([
             }
         });
     }
+
 
     function template() {
         return div({}, [

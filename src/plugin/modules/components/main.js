@@ -4,16 +4,24 @@ define([
     'kb_knockout/registry',
     'kb_knockout/lib/generators',
     'kb_common/html',
+    '../lib/model',
+    '../lib/viewModel',
     './browse',
-    './edit'
+    './edit',
+    './new',
+    './toolbar'
 ], function (
     ko,
     ViewModelBase,
     reg,
     gen,
     html,
+    model,
+    viewModel,
     BrowseComponent,
-    EditComponent
+    EditComponent,
+    NewComponent,
+    ToolbarComponent
 ) {
     'use strict';
 
@@ -24,23 +32,25 @@ define([
         constructor(params) {
             super(params);
             this.model = params.model;
+
             this.ready = ko.observable(false);
             this.alerts = ko.observableArray();
+            this.alertsIndex = {};
 
             this.selectedAlert = ko.observable(null);
 
             this.view = ko.observable('browse');
 
-            this.model.fetchAlerts()
+            // Initially we fetch active alerts...??
+            this.model.searchAlerts({
+                status: 'published'
+            })
                 .then((alerts) => {
                     alerts.forEach((alert) => {
-                        this.alerts.push({
-                            id: alert.id,
-                            title: alert.title,
-                            description: alert.description,
-                            startAt: new Date(alert.startAt),
-                            endAt: (alert.endAt ? new Date(alert.endAt) : null)
-                        });
+                        let newAlert = new viewModel.Alert(alert);
+                        this.alerts.push(newAlert);
+                        
+                        this.alertsIndex[alert.id] = newAlert;
                     });
                 });
 
@@ -54,26 +64,101 @@ define([
                 editAlert: (data) => {
                     this.editAlert(data);
                 },
-                navigate: (newView) =>{
+                newAlert: () => {
+                    this.createNewAlert();
+                },
+                addAlert: (data) => {
+                    this.addAlert(data);
+                },
+                updateAlert: (data) => {
+                    this.updateAlert(data);
+                },
+                navigate: (newView) => {
                     this.changeView(newView);
-                }
+                }                
             };
+
+            this.on('navigate-to-browse', () => {
+                this.changeView('browse');
+            });
+
+            this.on('navigate-to-new', () => {
+                let alert = new viewModel.Alert();
+                this.selectedAlert(alert);
+                this.changeView('new');
+            });
         }
 
         editAlert(data) {
-            // console.log('editing:', data);
             this.selectedAlert(data);
             this.view('edit');
         }
 
-        deleteAlert(data) {
-            this.alerts.remove(data);
-            this.model.deleteAlert(alert.id);
+        createNewAlert() {
+            let alert = new viewModel.Alert();
+            this.selectedAlert(alert);
+            this.view('new');
+        }
+
+        deleteAlert(alert) {
+            this.alerts.remove(alert);
+            this.model.deleteAlert(alert.id)
+                .catch((err) => {
+                    console.error('ERROR deleting alert', err);
+                });
+        }
+
+        addAlert(alert) {
+            // NB: alert is already a viewmodel alert as defined above.
+            // let alert = new Alert(data);
+
+            // Here we need to translate the alert to what the model
+            // understands (or at least the addAlert method)
+            this.model.addAlert({
+                title: alert.title(),
+                message: alert.message(),
+                startAt: alert.startAt().toISOString(),
+                endAt: alert.endAt().toISOString(),
+                status: alert.status()
+            })
+                .then((alertId) => {
+                    console.log('alert id?', alertId);
+                    alert.id(alertId);
+                    this.alerts.push(alert);
+                });
+        }
+
+        updateAlert(alert) {
+            let updatedAlert = {
+                id: alert.id(),
+                title: alert.title(),
+                message: alert.message(),
+                startAt: alert.startAt().toISOString(),
+                endAt: alert.endAt().toISOString(),
+                status: alert.status()
+            };
+            console.log('updating?', updatedAlert);
+            // let alert = new model.Alert(data);
+            this.model.updateAlert(updatedAlert);
         }
 
         changeView(newView) {
             this.view(newView);
         }
+    }
+
+    function buildToolbar() {
+        return div({
+            dataBind: {
+                component: {
+                    name: ToolbarComponent.quotedName(),
+                    params: {
+                        actions: 'actions',
+                        bus: 'bus'
+                    }
+                }
+            }
+        });
     }
 
     function template() {
@@ -84,11 +169,7 @@ define([
                 margin: '10px'
             }
         }, [
-            div({
-                style: {
-                    flex: '0 0 2em'
-                }
-            }, 'Browse'),
+            buildToolbar(),
             div({
                 style: {
                     flex: '1 1 0px'
@@ -114,6 +195,20 @@ define([
                         dataBind: {
                             component: {
                                 name: EditComponent.quotedName(),
+                                params: {
+                                    actions: 'actions',
+                                    alert: 'selectedAlert'
+                                }
+                            }
+                        }
+                    })
+                ],
+                [
+                    '"new"',
+                    div({
+                        dataBind: {
+                            component: {
+                                name: NewComponent.quotedName(),
                                 params: {
                                     actions: 'actions',
                                     alert: 'selectedAlert'

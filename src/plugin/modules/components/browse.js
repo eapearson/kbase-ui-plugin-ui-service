@@ -16,7 +16,6 @@ define([
     let t = html.tag,
         div = t('div'),
         label = t('label'),
-        button = t('button'),
         select = t('select'),
         option = t('option'),
         span = t('span'),
@@ -32,7 +31,8 @@ define([
             super(params);
             this.alerts = params.alerts;
             this.delete = params.actions.deleteAlert;
-            this.edit = params.actions.editAlert;
+            this.doEdit = params.actions.editAlert;
+            this.navigate = params.actions.navigate;
         }
     }
 
@@ -53,10 +53,6 @@ define([
 
                 ]),
     
-                button({
-                    class: 'btn btn-default'
-                }, 'New'),
-
                 div({
                     class: 'btn-group',
                     style: {
@@ -87,10 +83,12 @@ define([
             }, [
                 thead([
                     tr([
+                        th('ID'),
                         th('Title'),
-                        th('Description'),
+                        th('Message'),
                         th('Start at'),
                         th('End at'),
+                        th('Status'),
                         th()
                     ])
                 ]),
@@ -101,12 +99,17 @@ define([
                 }, tr([
                     td({
                         dataBind: {
+                            text: 'id'
+                        }
+                    }),
+                    td({
+                        dataBind: {
                             text: 'title'
                         }
                     }),
                     td({
                         dataBind: {
-                            text: 'description'
+                            text: 'message'
                         }
                     }),
                     td({
@@ -114,7 +117,7 @@ define([
                             typedText: {
                                 value: 'startAt',
                                 type: '"date"',
-                                format: '"YYYY-MM-DD @ HH:MMa"'
+                                format: '"YYYY-MM-DD @ h:mm a"'
                             }
                         }
                     }),
@@ -123,8 +126,13 @@ define([
                             typedText: {
                                 value: 'endAt',
                                 type: '"date"',
-                                format: '"YYYY-MM-DD @ HH:MMa"'
+                                format: '"YYYY-MM-DD @ h:mm a"'
                             }
+                        }
+                    }),
+                    td({
+                        dataBind: {
+                            text: 'status'
                         }
                     }),
                     td([
@@ -134,7 +142,7 @@ define([
                             div({
                                 class: 'btn btn-default',
                                 dataBind: {
-                                    click: 'function(d,e){return $component.edit.call($component,d,e);}'
+                                    click: '$component.doEdit'
                                 }
                             }, span({
                                 class: 'fa fa-edit'
