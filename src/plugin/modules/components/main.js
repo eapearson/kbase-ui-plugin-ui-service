@@ -102,7 +102,7 @@ define([
 
         deleteAlert(alert) {
             this.alerts.remove(alert);
-            this.model.deleteAlert(alert.id)
+            this.model.deleteAlert(alert.id())
                 .catch((err) => {
                     console.error('ERROR deleting alert', err);
                 });
@@ -122,7 +122,6 @@ define([
                 status: alert.status()
             })
                 .then((alertId) => {
-                    console.log('alert id?', alertId);
                     alert.id(alertId);
                     this.alerts.push(alert);
                 });
@@ -137,7 +136,6 @@ define([
                 endAt: alert.endAt().toISOString(),
                 status: alert.status()
             };
-            console.log('updating?', updatedAlert);
             // let alert = new model.Alert(data);
             this.model.updateAlert(updatedAlert);
         }

@@ -14,7 +14,6 @@ define([
     // and we aslo remove this file and the modules directory.
     let pluginPath = module.uri.split('/').slice(1, -2).join('/');
 
-    // console.log('plugin path: ', pluginPath);
     class Panel {
         constructor(config) {
             this.runtime = config.runtime;

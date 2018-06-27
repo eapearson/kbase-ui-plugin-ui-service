@@ -54,7 +54,6 @@ define([
             // });
             return client.callFunc('search_alerts', [{}])
                 .spread((result) => {
-                    console.log('result?', result);
                     return result.alerts;
                 });
         }

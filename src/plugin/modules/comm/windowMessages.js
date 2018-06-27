@@ -87,7 +87,7 @@ define([
 
         receiveMessage(messageEvent) {
             let message = messageEvent.data;            
-            console.log('* received', message);
+            // console.log('* received', message);
             // ignore messages not to/from the registered ids.
             // if (!message.envelope.to === this.hostId) {
             //     return;
@@ -218,7 +218,7 @@ define([
                     let newListeners = listeners.filter((listener) => {
                         if (listener.timeout) {
                             let elapsed = now - listener.started.getTime();
-                            console.log('elapsed?', listener instanceof WaitingListener, elapsed, listener.timeout);
+                            // console.log('elapsed?', listener instanceof WaitingListener, elapsed, listener.timeout);
                             if (elapsed > listener.timeout) {
                                 try {
                                     if (listener.onError) {

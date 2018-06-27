@@ -26,8 +26,6 @@ define([
             
             this.alert = ko.unwrap(params.alert);
             this.actions = params.actions;
-
-            console.log('edit', this.alert);
         }
     }
 
