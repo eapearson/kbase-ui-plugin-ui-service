@@ -44,14 +44,14 @@ define([
                     display: 'inline-block'
                 }
             }, [
-                div({
-                    class: 'btn-group'
-                }, [
-                    span({
-                        class: 'btn'
-                    }, 'Browsing Alerts'),
+                // div({
+                //     class: 'btn-group'
+                // }, [
+                //     span({
+                //         class: 'btn'
+                //     }, 'Browsing Alerts'),
 
-                ]),
+                // ]),
     
                 div({
                     class: 'btn-group',
@@ -137,10 +137,10 @@ define([
                     }),
                     td([
                         div({
-                            class: 'btn-group'
+                            class: 'btn-group pull-right'
                         }, [
                             div({
-                                class: 'btn btn-default',
+                                class: 'btn btn-default btn-sm',
                                 dataBind: {
                                     click: '$component.doEdit'
                                 }
@@ -148,7 +148,7 @@ define([
                                 class: 'fa fa-edit'
                             })),
                             div({
-                                class: 'btn btn-danger',
+                                class: 'btn btn-danger btn-sm',
                                 dataBind: {
                                     click: 'function(d,e){return $component.delete.call($component,d,e);}'
                                 }
@@ -164,7 +164,7 @@ define([
 
     function template() {
         return div([
-            buildMenu(),
+            // buildMenu(),
             buildBrowseTable()
         ]);
     }

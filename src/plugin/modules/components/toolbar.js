@@ -17,17 +17,17 @@ define([
 
     var t = html.tag,
         button = t('button'),
-        div = t('div');
+        div = t('div'),
+        label = t('label'),
+        select = t('select'),
+        option = t('option');
 
     class ViewModel extends ViewModelBase {
         constructor(params) {
             super(params);
             
             this.alert = params.alert;
-
             this.navigate = params.actions.navigate;
-
-
         }
 
         doNavigate(to) {
@@ -46,25 +46,48 @@ define([
     function template() {
         return div({
             style: {
-                border: '1px red solid'
+                border: '1px silver solid',
+                padding: '4px',
+                marginBottom: '4px'
             },
             class: 'btn-toolbar'
-        }, div({
-            class: 'btn-group'
         }, [
-            button({
-                class: 'btn btn-default',
-                dataBind: {
-                    click: 'function(d,e){$component.doShowBrowse.call($component);}'
+            div({
+                class: 'btn-group'
+            }, [
+                button({
+                    class: 'btn btn-default',
+                    dataBind: {
+                        click: 'function(d,e){$component.doShowBrowse.call($component);}'
+                    }
+                }, 'Browse'),
+                button({
+                    class: 'btn btn-default',
+                    dataBind: {
+                        click: 'function(d,e){$component.doShowNewAlert.call($component);}'
+                    }
+                }, 'New')
+            ]),
+            div({
+                class: 'btn-group',
+                style: {
+                    marginLeft: '12px'
                 }
-            }, 'Browse'),
-            button({
-                class: 'btn btn-default',
-                dataBind: {
-                    click: 'function(d,e){$component.doShowNewAlert.call($component);}'
-                }
-            }, 'New')
-        ]));
+            }, div({
+                class: 'form-inline'
+            }, [
+                label('Show'),
+                select({
+                    class: 'form-control'
+                }, [
+                    option('Active'),
+                    option('Upcoming'),
+                    option('Expired'),
+                    option('Canceled'),
+                    option('All')
+                ])
+            ]))
+        ]);
     }
 
     function component() {
