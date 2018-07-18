@@ -24,7 +24,7 @@ define([
         constructor(params) {
             super(params);
             
-            this.alert = ko.unwrap(params.alert);
+            this.alert = params.alert;
             this.actions = params.actions;
         }
     }

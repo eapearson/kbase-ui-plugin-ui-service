@@ -1,14 +1,11 @@
 define([
-    'bluebird',
-    'uuid',
-    'kb_common/jsonRpc/dynamicServiceClient'
+    'moment'
 ], function (
-    Promise,
-    Uuid,
-    DynamicServiceClient
+    moment
 ) {
     'use strict';
 
+    /* Alert is the model's view of an alert. */
     class Alert {
         constructor({id, title, message, startAt, endAt, status}) {
             this.id = id;
@@ -19,17 +16,13 @@ define([
             this.status = status;
         }
 
-        genId() {
-            this.id = new Uuid(4).format();
-        }
-
         toJSON() {
             return {
                 id: this.id,
                 title: this.title,
                 message: this.message,
-                start_at: this.startAt,
-                end_at: this.endAt,
+                start_at: moment(this.startAt).utc().format(),
+                end_at: moment(this.endAt).utc().format(),
                 status: this.status
             };
         }
@@ -42,32 +35,37 @@ define([
             this.alertsIndex = {};
         }
 
-        searchAlerts() {
+        searchAlerts({query}) {
             // return this.alerts;
-            let client = this.runtime.service('rpc').makeClient({
+           
+            const client = this.runtime.service('rpc').makeClient({
                 module: 'UIService'
             });
-            // let client = new DynamicServiceClient({
-            //     module: 'UIService',
-            //     url: this.runtime.config('services.ServiceWizard.url'),
-            //     token: this.runtime.service('session').getAuthToken()
-            // });
-            return client.callFunc('search_alerts', [{}])
+            return client.callFunc('search_alerts', [{
+                query: query
+            }])
                 .spread((result) => {
                     return result.alerts;
                 });
         }
 
         getAlerts() {
-            // return this.alerts;
-            let client = new DynamicServiceClient({
-                module: 'UIService',
-                url: this.runtime.config('services.ServiceWizard.url'),
-                token: this.runtime.service('session').getAuthToken()
+            const client = this.runtime.service('rpc').makeClient({
+                module: 'UIService'
             });
             return client.callFunc('search_alerts', [{}])
                 .spread((result) => {
                     return result.alerts;
+                });
+        }
+
+        getAlert(alertId) {
+            const client = this.runtime.service('rpc').makeClient({
+                module: 'UIService'
+            });
+            return client.callFunc('get_alert', [alertId])
+                .spread((alert) => {
+                    return alert;
                 });
         }
 
@@ -75,9 +73,10 @@ define([
             let client = this.runtime.service('rpc').makeClient({
                 module: 'UIService'
             });
-            return client.callFunc('delete_alert', [
-                alertId
-            ]);
+            return client.callFunc('delete_alert', [alertId])
+                .spread((result) => {
+                    return result;
+                });
         }
 
         updateAlert(alert) {

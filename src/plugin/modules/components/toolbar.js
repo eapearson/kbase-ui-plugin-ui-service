@@ -17,10 +17,7 @@ define([
 
     var t = html.tag,
         button = t('button'),
-        div = t('div'),
-        label = t('label'),
-        select = t('select'),
-        option = t('option');
+        div = t('div');
 
     class ViewModel extends ViewModelBase {
         constructor(params) {
@@ -46,9 +43,9 @@ define([
     function template() {
         return div({
             style: {
-                border: '1px silver solid',
-                padding: '4px',
-                marginBottom: '4px'
+                borderBottom: '2px silver solid',
+                padding: '0 4px 10px 4px',
+                marginBottom: '10px'
             },
             class: 'btn-toolbar'
         }, [
@@ -60,33 +57,18 @@ define([
                     dataBind: {
                         click: 'function(d,e){$component.doShowBrowse.call($component);}'
                     }
-                }, 'Browse'),
+                }, 'Browse')
+            ]),
+            div({
+                class: 'btn-group'
+            }, [
                 button({
                     class: 'btn btn-default',
                     dataBind: {
                         click: 'function(d,e){$component.doShowNewAlert.call($component);}'
                     }
                 }, 'New')
-            ]),
-            div({
-                class: 'btn-group',
-                style: {
-                    marginLeft: '12px'
-                }
-            }, div({
-                class: 'form-inline'
-            }, [
-                label('Show'),
-                select({
-                    class: 'form-control'
-                }, [
-                    option('Active'),
-                    option('Upcoming'),
-                    option('Expired'),
-                    option('Canceled'),
-                    option('All')
-                ])
-            ]))
+            ])
         ]);
     }
 

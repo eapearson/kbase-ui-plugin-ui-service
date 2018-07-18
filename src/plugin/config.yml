@@ -27,8 +27,8 @@ install:
     -
       name: ui-service
       path: ui-service
-      label: UI Service
-      icon: flask
+      label: System Alerts Admin
+      icon: feed
     -
       name: ui-service-rum
       path: ui-service/rum

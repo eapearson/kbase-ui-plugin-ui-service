@@ -35,7 +35,7 @@ define([
         }
 
         start() {
-            this.runtime.send('ui', 'setTitle', 'UI Service Admin');
+            this.runtime.send('ui', 'setTitle', 'System Alerts - Admin');
             var vm = {
                 model: this.model,
                 doNavigate: function (path) {

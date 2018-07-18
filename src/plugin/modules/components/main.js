@@ -1,5 +1,6 @@
 define([
     'knockout',
+    'moment',
     'kb_knockout/lib/viewModelBase',
     'kb_knockout/registry',
     'kb_knockout/lib/generators',
@@ -12,6 +13,7 @@ define([
     './toolbar'
 ], function (
     ko,
+    moment,
     ViewModelBase,
     reg,
     gen,
@@ -41,18 +43,20 @@ define([
 
             this.view = ko.observable('browse');
 
+            this.selectedTimeRange = ko.observable('current');
+            this.selectedStatus = ko.observable('published');
+
             // Initially we fetch active alerts...??
-            this.model.searchAlerts({
-                status: 'published'
-            })
-                .then((alerts) => {
-                    alerts.forEach((alert) => {
-                        let newAlert = new viewModel.Alert(alert);
-                        this.alerts.push(newAlert);
-                        
-                        this.alertsIndex[alert.id] = newAlert;
-                    });
-                });
+            this.searchQuery = ko.pureComputed(() => {
+                return {
+                    timeRange: this.selectedTimeRange(),
+                    status: this.selectedStatus()
+                };
+            });
+
+            this.subscribe(this.searchQuery, () => {
+                this.searchAlerts();
+            });
 
             // NB: we need to do this because it is a lot of bother to invoke methods in this
             //     viewmodel from sub-components.
@@ -87,6 +91,59 @@ define([
                 this.selectedAlert(alert);
                 this.changeView('new');
             });
+
+            // MAIN
+            this.searchAlerts();
+        }
+
+        searchAlerts() {
+            const userQuery = this.searchQuery();
+            const query = {
+                op: 'and',
+                args: []
+            };
+            if (userQuery.status) {
+                query.args.push({
+                    path: 'status',
+                    op: 'eq',
+                    value: userQuery.status
+                });
+            }
+            if (userQuery.timeRange) {
+                switch (userQuery.timeRange) {
+                case 'past':
+                    query.args.push({
+                        path: 'end_at',
+                        op: 'lt',
+                        value: moment().utc().format()
+                    });
+                    break;
+                case 'current':
+                    // query.args.push({
+                    //     path: 'start_at',
+                    //     op: 'lte',
+                    //     value: moment().utc().format()
+                    // });
+                    query.args.push({
+                        path: 'end_at',
+                        op: 'gte',
+                        value: moment().utc().format()
+                    });
+                    break;
+                }
+            }
+            this.model.searchAlerts({
+                query: query
+            })
+                .then((alerts) => {
+                    this.alerts.removeAll();
+                    alerts.forEach((alert) => {
+                        let newAlert = new viewModel.Alert(alert);                        
+                        this.alerts.push(newAlert);
+                        
+                        this.alertsIndex[alert.id] = newAlert;
+                    });
+                });
         }
 
         editAlert(data) {
@@ -110,7 +167,6 @@ define([
 
         addAlert(alert) {
             // NB: alert is already a viewmodel alert as defined above.
-            // let alert = new Alert(data);
 
             // Here we need to translate the alert to what the model
             // understands (or at least the addAlert method)
@@ -124,6 +180,11 @@ define([
                 .then((alertId) => {
                     alert.id(alertId);
                     this.alerts.push(alert);
+                    return this.model.getAlert(alertId)
+                        .then((newAlert) => {
+                            // now update the viewmodel alert.
+                            alert.updateFromModel(newAlert);
+                        });
                 });
         }
 
@@ -136,8 +197,14 @@ define([
                 endAt: alert.endAt().toISOString(),
                 status: alert.status()
             };
-            // let alert = new model.Alert(data);
-            this.model.updateAlert(updatedAlert);
+            this.model.updateAlert(updatedAlert)
+                .then(() => {
+                    return this.model.getAlert(alert.id())
+                        .then((updatedAlert) => {
+                            // now update the viewmodel alert.
+                            alert.updateFromModel(updatedAlert);
+                        });                 
+                });
         }
 
         changeView(newView) {
@@ -181,7 +248,9 @@ define([
                                 name: BrowseComponent.quotedName(),
                                 params: {
                                     alerts: 'alerts',
-                                    actions: 'actions'
+                                    actions: 'actions',
+                                    selectedTimeRange: 'selectedTimeRange',
+                                    selectedStatus: 'selectedStatus'
                                 }
                             }
                         }

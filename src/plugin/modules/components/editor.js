@@ -27,7 +27,7 @@ define([
         input = t('input');
     
     ko.bindingHandlers.dateTimePicker = {
-        init: function (element, valueAccessor, allBindings, data, context) {
+        init: function (element, valueAccessor) {
             let value = valueAccessor();
             // TODO: ensure bound to input.
             element.value = ko.unwrap(value.value);
@@ -74,11 +74,10 @@ define([
             picker.date(koDate);
         }
     };
-
     class ViewModel extends ViewModelBase {
         constructor(params) {
             super(params);
-            
+
             this.alert = ko.unwrap(params.alert);
             this.actions = params.actions;
 
@@ -143,7 +142,9 @@ define([
     function buildEditForm() {
         return div({
             style: {
-                border: '1px blue solid'
+                border: '1px silver solid',
+                boxShadow: '4px 4px 4px silver',
+                paddingTop: '8px'
             },
             dataBind: {
                 with: 'alert'
@@ -151,24 +152,25 @@ define([
         }, div({
             class: 'form-horizontal'
         }, [
-            div({
-                class: 'form-group'
-            }, [
-                label({
-                    class: 'col-sm-2 control-label'
-                }, 'ID'),
+            gen.if('id',
                 div({
-                    class: 'col-sm-10'
-                }, input({
-                    type: 'text',
-                    class: 'form-control',
-                    placeholder: 'ID',
-                    dataBind: {
-                        textInput: 'id'
-                    },
-                    readonly: true
-                }))
-            ]),
+                    class: 'form-group'
+                }, [
+                    label({
+                        class: 'col-sm-2 control-label'
+                    }, 'ID'),
+                    div({
+                        class: 'col-sm-10'
+                    }, input({
+                        type: 'text',
+                        class: 'form-control',
+                        placeholder: 'ID',
+                        dataBind: {
+                            textInput: 'id'
+                        },
+                        readonly: true
+                    }))
+                ])),
             div({
                 class: 'form-group'
             }, [
@@ -197,6 +199,9 @@ define([
                 }, textarea({
                     type: 'text',
                     class: 'form-control',
+                    style: {
+                        height: '5em'
+                    },
                     placeholder: 'Message',
                     dataBind: {
                         textInput: 'message'
@@ -260,14 +265,108 @@ define([
                         optionsValue: '"value"'
                     }
                 }))
-            ])
+            ]),
+            gen.if('createdAt',
+                div({
+                    class: 'form-group'
+                }, [
+                    label({
+                        class: 'col-sm-2 control-label'
+                    }, 'Created'),
+                    div({
+                        class: 'col-sm-10'
+                    }, div({
+                        type: 'text',
+                        class: 'form-control',
+                        placeholder: 'Created',
+                        dataBind: {
+                            typedText: {
+                                value: 'createdAt',
+                                type: '"date"',
+                                format: '"YYYY-MM-DD @ h:mm a"'
+                            }
+                        },
+                        readonly: true
+                    }))
+                ])),
+            gen.if('createdBy',
+                div({
+                    class: 'form-group'
+                }, [
+                    label({
+                        class: 'col-sm-2 control-label'
+                    }, 'Created'),
+                    div({
+                        class: 'col-sm-10'
+                    }, div({
+                        type: 'text',
+                        class: 'form-control',
+                        placeholder: 'Created',
+                        dataBind: {
+                            text: 'createdBy'
+                        },
+                        readonly: true
+                    }))
+                ])),
+            gen.if('updatedAt',
+                div({
+                    class: 'form-group'
+                }, [
+                    label({
+                        class: 'col-sm-2 control-label'
+                    }, 'Updated at'),
+                    div({
+                        class: 'col-sm-10'
+                    }, div({
+                        type: 'text',
+                        class: 'form-control',
+                        placeholder: 'Updated at',
+                        dataBind: {
+                            typedText: {
+                                value: 'updatedAt',
+                                type: '"date"',
+                                format: '"YYYY-MM-DD @ h:mm a"'
+                            }
+                        },
+                        readonly: true
+                    }))
+                ])),
+            gen.if('updatedBy',
+                div({
+                    class: 'form-group'
+                }, [
+                    label({
+                        class: 'col-sm-2 control-label'
+                    }, 'Updated by'),
+                    div({
+                        class: 'col-sm-10'
+                    }, div({
+                        type: 'text',
+                        class: 'form-control',
+                        placeholder: 'Updated by',
+                        dataBind: {
+                            text: 'updatedBy'
+                        },
+                        readonly: true
+                    }),
+                    div({
+                        type: 'text',
+                        class: 'form-control',
+                        style: {
+                            fontStyle: 'italic'
+                        },
+                        readonly: true
+                    }, 'Not yet updated'))
+                ]))
+
         ]));
     }
 
     function buildControls() {
         return div({
             style: {
-                border: '1px red solid'
+                // border: '1px red solid'
+                marginTop: '10px'
             },
             class: 'btn-toolbar'
         }, div({

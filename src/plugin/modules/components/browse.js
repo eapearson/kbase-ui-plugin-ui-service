@@ -17,7 +17,6 @@ define([
         div = t('div'),
         label = t('label'),
         select = t('select'),
-        option = t('option'),
         span = t('span'),
         table = t('table'),
         thead = t('thead'),
@@ -26,6 +25,14 @@ define([
         th = t('th'),
         td = t('td');
 
+
+    class Option {
+        constructor(value, label) {
+            this.value = value;
+            this.label = label;
+        }
+    }
+
     class ViewModel extends ViewModelBase {
         constructor(params) {
             super(params);
@@ -33,6 +40,21 @@ define([
             this.delete = params.actions.deleteAlert;
             this.doEdit = params.actions.editAlert;
             this.navigate = params.actions.navigate;
+
+            this.timeRange = params.selectedTimeRange;
+            this.timeRangeOptions = ko.observableArray([
+                new Option('past', 'Past'),
+                new Option('current', 'Current & Upcoming'),
+                // new Option('all', 'All')
+            ]);
+
+            this.status = params.selectedStatus;
+            this.statusOptions = ko.observableArray([
+                new Option('pending', 'Pending'),
+                new Option('published', 'Published'),
+                new Option('canceled', 'Canceled'),
+                // new Option('all', 'All')
+            ]);
         }
     }
 
@@ -44,34 +66,59 @@ define([
                     display: 'inline-block'
                 }
             }, [
-                // div({
-                //     class: 'btn-group'
-                // }, [
-                //     span({
-                //         class: 'btn'
-                //     }, 'Browsing Alerts'),
-
-                // ]),
-    
+                
                 div({
-                    class: 'btn-group',
-                    style: {
-                        marginLeft: '12px'
-                    }
-                }, div({
                     class: 'form-inline'
                 }, [
-                    label('Show'),
-                    select({
-                        class: 'form-control'
+                    span({
+                        style: {
+                            color: 'gray',
+                            fontVariant: 'small-caps',
+                            marginRight: '8px'
+                        }
+                    }, 'filters: '),
+                    div({
+                        class: 'form-group'
                     }, [
-                        option('Active'),
-                        option('Upcoming'),
-                        option('Expired'),
-                        option('Canceled'),
-                        option('All')
+                        label({
+                            style: {
+                                marginRight: '4px'
+                            }
+                        }, 'Time Range'),
+                        select({
+                            class: 'form-control',
+                            dataBind: {
+                                value: 'timeRange',
+                                options: 'timeRangeOptions',
+                                optionsValue: '"value"',
+                                optionsText: '"label"',
+                                optionsCaption: '"All"'
+                            }
+                        })
+                    ]),
+                    div({
+                        class: 'form-group',
+                        style: {
+                            marginLeft: '12px'
+                        }
+                    }, [
+                        label({
+                            style: {
+                                marginRight: '4px'
+                            }
+                        }, 'Status'),
+                        select({
+                            class: 'form-control',
+                            dataBind: {
+                                value: 'status',
+                                options: 'statusOptions',
+                                optionsValue: '"value"',
+                                optionsText: '"label"',
+                                optionsCaption: '"All"'
+                            }
+                        })
                     ])
-                ]))
+                ])
             ])
         ]);
     }
@@ -83,7 +130,7 @@ define([
             }, [
                 thead([
                     tr([
-                        th('ID'),
+                        // th('ID'),
                         th('Title'),
                         th('Message'),
                         th('Start at'),
@@ -97,22 +144,34 @@ define([
                         foreach: 'alerts'
                     }
                 }, tr([
+                    // td({
+                    //     dataBind: {
+                    //         text: 'id'
+                    //     }
+                    // }),
                     td({
+                        style: {
+                            verticalAlign: 'middle'
+                        },
                         dataBind: {
-                            text: 'id'
+                            text: 'title',
+                            attr: {
+                                title: 'id'
+                            }
                         }
                     }),
                     td({
-                        dataBind: {
-                            text: 'title'
-                        }
-                    }),
-                    td({
+                        style: {
+                            verticalAlign: 'middle'
+                        },
                         dataBind: {
                             text: 'message'
                         }
                     }),
                     td({
+                        style: {
+                            verticalAlign: 'middle'
+                        },
                         dataBind: {
                             typedText: {
                                 value: 'startAt',
@@ -122,6 +181,9 @@ define([
                         }
                     }),
                     td({
+                        style: {
+                            verticalAlign: 'middle'
+                        },
                         dataBind: {
                             typedText: {
                                 value: 'endAt',
@@ -131,6 +193,9 @@ define([
                         }
                     }),
                     td({
+                        style: {
+                            verticalAlign: 'middle'
+                        },
                         dataBind: {
                             text: 'status'
                         }
@@ -164,7 +229,7 @@ define([
 
     function template() {
         return div([
-            // buildMenu(),
+            buildMenu(),
             buildBrowseTable()
         ]);
     }
