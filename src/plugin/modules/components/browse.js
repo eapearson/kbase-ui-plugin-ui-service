@@ -1,15 +1,19 @@
 define([
     'knockout',
+    'moment',
     'kb_knockout/lib/viewModelBase',
     'kb_knockout/registry',
     'kb_knockout/lib/generators',
-    'kb_common/html'
+    'kb_common/html',
+    '../lib/viewModel'
 ], function (
     ko,
+    moment,
     ViewModelBase,
     reg,
     gen,
-    html
+    html,
+    viewModel
 ) {
     'use strict';
 
@@ -25,7 +29,6 @@ define([
         th = t('th'),
         td = t('td');
 
-
     class Option {
         constructor(value, label) {
             this.value = value;
@@ -34,27 +37,113 @@ define([
     }
 
     class ViewModel extends ViewModelBase {
-        constructor(params) {
+        constructor(params, context) {
             super(params);
-            this.alerts = params.alerts;
-            this.delete = params.actions.deleteAlert;
+            // this.alerts = params.alerts;
+            this.model = context['$root'].model;
+
+            // this.delete = params.actions.deleteAlert;
             this.doEdit = params.actions.editAlert;
             this.navigate = params.actions.navigate;
 
-            this.timeRange = params.selectedTimeRange;
+            this.selectedTimeRange = ko.observable('current');
             this.timeRangeOptions = ko.observableArray([
                 new Option('past', 'Past'),
                 new Option('current', 'Current & Upcoming'),
                 // new Option('all', 'All')
             ]);
 
-            this.status = params.selectedStatus;
+            this.selectedStatus = ko.observable('published');
             this.statusOptions = ko.observableArray([
                 new Option('pending', 'Pending'),
                 new Option('published', 'Published'),
                 new Option('canceled', 'Canceled'),
                 // new Option('all', 'All')
             ]);
+
+            this.alerts = ko.observableArray();
+            this.alertsIndex = {};
+
+            // Initially we fetch active alerts...??
+            this.searchQuery = ko.pureComputed(() => {
+                return {
+                    timeRange: this.selectedTimeRange(),
+                    status: this.selectedStatus()
+                };
+            });
+
+            this.subscribe(this.searchQuery, () => {
+                this.searchAlerts();
+            });
+
+            // MAIN
+            this.searchAlerts();
+        }
+
+        searchAlerts() {
+            const userQuery = this.searchQuery();
+            const query = {
+                op: 'and',
+                args: []
+            };
+            if (userQuery.status) {
+                query.args.push({
+                    path: 'status',
+                    op: 'eq',
+                    value: userQuery.status
+                });
+            }
+            if (userQuery.timeRange) {
+                switch (userQuery.timeRange) {
+                case 'past':
+                    query.args.push({
+                        path: 'end_at',
+                        op: 'lt',
+                        value: moment().utc().format()
+                    });
+                    break;
+                case 'current':
+                    // query.args.push({
+                    //     path: 'start_at',
+                    //     op: 'lte',
+                    //     value: moment().utc().format()
+                    // });
+                    query.args.push({
+                        path: 'end_at',
+                        op: 'gte',
+                        value: moment().utc().format()
+                    });
+                    break;
+                }
+            }
+            this.model.searchAlerts({
+                query: query
+            })
+                .then((alerts) => {
+                    this.alerts.removeAll();
+                    alerts.forEach((alert) => {
+                        let newAlert = new viewModel.Alert({
+                            alert: alert,
+                            model: this.model
+                        });
+                        this.alerts.push(newAlert);
+                        
+                        this.alertsIndex[alert.id] = newAlert;
+                    });
+                });
+        }
+
+        // editAlert(data) {
+        //     this.selectedAlert(data);
+        //     this.view('edit');
+        // }
+
+        deleteAlert(alert) {
+            this.alerts.remove(alert);
+            this.model.deleteAlert(alert.id())
+                .catch((err) => {
+                    console.error('ERROR deleting alert', err);
+                });
         }
     }
 
@@ -88,7 +177,7 @@ define([
                         select({
                             class: 'form-control',
                             dataBind: {
-                                value: 'timeRange',
+                                value: 'selectedTimeRange',
                                 options: 'timeRangeOptions',
                                 optionsValue: '"value"',
                                 optionsText: '"label"',
@@ -110,7 +199,7 @@ define([
                         select({
                             class: 'form-control',
                             dataBind: {
-                                value: 'status',
+                                value: 'selectedStatus',
                                 options: 'statusOptions',
                                 optionsValue: '"value"',
                                 optionsText: '"label"',
@@ -213,9 +302,9 @@ define([
                                 class: 'fa fa-edit'
                             })),
                             div({
-                                class: 'btn btn-danger btn-sm',
+                                class: 'btn btn-sm btn-danger',
                                 dataBind: {
-                                    click: 'function(d,e){return $component.delete.call($component,d,e);}'
+                                    click: 'function(d,e){return $component.deleteAlert.call($component,d,e);}'
                                 }
                             }, span({
                                 class: 'fa fa-trash'
@@ -236,7 +325,7 @@ define([
 
     function component() {
         return {
-            viewModel: ViewModel,
+            viewModelWithContext: ViewModel,
             template: template()
         };
     }

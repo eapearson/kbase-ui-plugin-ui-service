@@ -80,6 +80,7 @@ define([
         }
 
         updateAlert(alert) {
+            console.log('updating alert...', alert);
             let alertToUpdate = new Alert(alert);
             let client = this.runtime.service('rpc').makeClient({
                 module: 'UIService'

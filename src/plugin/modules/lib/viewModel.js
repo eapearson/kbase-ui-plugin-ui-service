@@ -1,27 +1,29 @@
 define([
-    'knockout',
-    'uuid',
-    'kb_knockout/lib/viewModelBase'
+    'knockout'
 ], function (
-    ko,
-    Uuid,
-    ViewModelBase
+    ko
 ) {
     'use strict';
 
     class Alert {
-        constructor(params) {
-            if (params) {
-                this.id = ko.observable(params.id);
-                this.title = ko.observable(params.title);
-                this.message = ko.observable(params.message);
-                this.startAt = ko.observable(new Date(params.start_at));
-                this.endAt = ko.observable(params.end_at ? new Date(params.end_at) : null);
-                this.status = ko.observable(params.status);
-                this.createdAt = ko.observable(new Date(params.created_at));
-                this.createdBy = ko.observable(params.created_by);
-                this.updatedAt = ko.observable(params.updated_at ? new Date(params.updated_at) : null);
-                this.updatedBy = ko.observable(params.updated_by);
+        constructor({alert, model}) {
+            if (!model) {
+                throw new TypeError('"model" argument required');
+            }
+
+            this.model = model;
+
+            if (alert) {
+                this.id = ko.observable(alert.id);
+                this.title = ko.observable(alert.title);
+                this.message = ko.observable(alert.message);
+                this.startAt = ko.observable(new Date(alert.start_at));
+                this.endAt = ko.observable(alert.end_at ? new Date(alert.end_at) : null);
+                this.status = ko.observable(alert.status);
+                this.createdAt = ko.observable(new Date(alert.created_at));
+                this.createdBy = ko.observable(alert.created_by);
+                this.updatedAt = ko.observable(alert.updated_at ? new Date(alert.updated_at) : null);
+                this.updatedBy = ko.observable(alert.updated_by);
             } else {
                 this.id = ko.observable(null);
                 this.title = ko.observable();
@@ -46,6 +48,28 @@ define([
             this.createdBy(modelAlert.created_by);
             this.updatedAt(modelAlert.updated_at ? new Date(modelAlert.updated_at) : null);
             this.updatedBy(modelAlert.updated_by);
+        }
+
+        addToModel(alert) {
+            // NB: alert is already a viewmodel alert as defined above.
+
+            // Here we need to translate the alert to what the model
+            // understands (or at least the addAlert method)
+            this.model.addAlert({
+                title: this.title(),
+                message: this.message(),
+                startAt: this.startAt().toISOString(),
+                endAt: this.endAt().toISOString(),
+                status: this.status()
+            })
+                .then((alertId) => {
+                    this.id(alertId);
+                    return this.model.getAlert(alertId)
+                        .then((newAlert) => {
+                            // now update the viewmodel alert.
+                            this.updateFromModel(newAlert);
+                        });
+                });
         }
     }
 

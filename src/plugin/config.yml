@@ -10,18 +10,10 @@ install:
       id: ui-service_panel
       module: panel
       type: es6
-    -
-      id: ui-service_rum
-      module: rumPanel
-      type: es6
   routes:
     -
       path: [ui-service]
       widget: ui-service_panel
-      authorization: true
-    -
-      path: [ui-service, rum]
-      widget: ui-service_rum
       authorization: true
   menu:
     -
@@ -29,8 +21,3 @@ install:
       path: ui-service
       label: System Alerts Admin
       icon: feed
-    -
-      name: ui-service-rum
-      path: ui-service/rum
-      label: UI Service w/rum
-      icon: glass

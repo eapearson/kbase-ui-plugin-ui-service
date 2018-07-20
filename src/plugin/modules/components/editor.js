@@ -130,7 +130,7 @@ define([
             if (this.alert.id()) {
                 this.actions.updateAlert(this.alert);
             } else {
-                this.actions.addAlert(this.alert);
+                this.alert.addToModel();
             }
         }
 
