@@ -34,10 +34,6 @@ define([
             $(element).datetimepicker({
                 showClose: true
             });
-            // $(element).on('change', function () {
-            //     valueAccessor.value(this.value);
-            //     console.log('changed!', this.value);
-            // });
 
             //when a user changes the date, update the view model
             ko.utils.registerEventHandler(element, 'dp.change', function (event) {

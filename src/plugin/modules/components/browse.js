@@ -252,14 +252,22 @@ define([
                     td({
                         style: {
                             verticalAlign: 'middle'
+                        }
+                    }, div({
+                        style: {
+                            maxWidth: '30em'
                         },
                         dataBind: {
                             text: 'message'
                         }
-                    }),
+                    })),
                     td({
                         style: {
                             verticalAlign: 'middle'
+                        }
+                    }, div({
+                        style: {
+                            whiteSpace: 'nowrap'
                         },
                         dataBind: {
                             typedText: {
@@ -268,10 +276,14 @@ define([
                                 format: '"YYYY-MM-DD @ h:mm a"'
                             }
                         }
-                    }),
+                    })),
                     td({
                         style: {
                             verticalAlign: 'middle'
+                        }
+                    }, div({
+                        style: {
+                            whiteSpace: 'nowrap'
                         },
                         dataBind: {
                             typedText: {
@@ -280,7 +292,7 @@ define([
                                 format: '"YYYY-MM-DD @ h:mm a"'
                             }
                         }
-                    }),
+                    })),
                     td({
                         style: {
                             verticalAlign: 'middle'
@@ -289,12 +301,19 @@ define([
                             text: 'status'
                         }
                     }),
-                    td([
+                    td({
+                        style: {
+                            verticalAlign: 'middle'
+                        }
+                    }, [
                         div({
-                            class: 'btn-group pull-right'
+                            class: 'btn-group pull-right',
+                            style: {
+                                display: 'flex'
+                            },
                         }, [
                             div({
-                                class: 'btn btn-default btn-sm',
+                                class: 'btn btn-primary btn-sm',
                                 dataBind: {
                                     click: '$component.doEdit'
                                 }

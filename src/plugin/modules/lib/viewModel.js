@@ -50,7 +50,7 @@ define([
             this.updatedBy(modelAlert.updated_by);
         }
 
-        addToModel(alert) {
+        addToModel() {
             // NB: alert is already a viewmodel alert as defined above.
 
             // Here we need to translate the alert to what the model
