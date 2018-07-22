@@ -63,7 +63,9 @@ define([
             const client = this.runtime.service('rpc').makeClient({
                 module: 'UIService'
             });
-            return client.callFunc('get_alert', [alertId])
+            return client.callFunc('get_alert', [{
+                id: alertId
+            }])
                 .spread((alert) => {
                     return alert;
                 });
