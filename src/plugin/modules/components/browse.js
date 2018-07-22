@@ -103,15 +103,20 @@ define([
                     });
                     break;
                 case 'current':
-                    // query.args.push({
-                    //     path: 'start_at',
-                    //     op: 'lte',
-                    //     value: moment().utc().format()
-                    // });
                     query.args.push({
-                        path: 'end_at',
-                        op: 'gte',
-                        value: moment().utc().format()
+                        op: 'or',
+                        args: [
+                            {
+                                path: 'end_at',
+                                op: 'gte',
+                                value: moment().utc().format()
+                            },
+                            {
+                                path: 'end_at',
+                                op: 'eq',
+                                value: null
+                            }
+                        ]
                     });
                     break;
                 }
